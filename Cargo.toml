@@ -1,0 +1,26 @@
+[package]
+name = "paradise-city"
+version = "0.1.0"
+
+
+categories = ["cryptography"]
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+subtle = {version = "2", features = ["nightly"]}
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+
+[dependencies.curv]
+git = "https://github.com/KZen-networks/curv"
+features =  ["ec_jubjub"]
+branch = "blake_support"
+
+[patch.crates-io]
+rust-gmp = { version = "0.5.0", features = ["serde_support"], git = "https://github.com/KZen-networks/rust-gmp" }
+
+[dev-dependencies]
+criterion = "0.2"
