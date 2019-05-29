@@ -18,7 +18,8 @@
 
 #[cfg(test)]
 mod tests {
-    use curv::{BigInt, GE};
+    use curv::arithmetic::big_gmp::BigInt;
+    use curv::elliptic::curves::curve_jubjub::GE;
     use protocols::two_party::compute_R;
     use protocols::two_party::compute_ak;
     use protocols::two_party::compute_vk;

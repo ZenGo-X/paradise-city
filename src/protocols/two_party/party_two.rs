@@ -26,8 +26,8 @@ use super::{EcKeyPair, EphEcKeyPair};
 use curv::cryptographic_primitives::commitments::hash_commitment::HashCommitment;
 use curv::cryptographic_primitives::commitments::traits::Commitment;
 use curv::cryptographic_primitives::hashing::blake2b512::Blake;
-use curv::cryptographic_primitives::hashing::hash_sha256::HSha256;
-use curv::cryptographic_primitives::hashing::traits::Hash;
+
+use curv::arithmetic::big_gmp::BigInt;
 use curv::cryptographic_primitives::proofs::sigma_dlog::DLogProof;
 use curv::cryptographic_primitives::proofs::sigma_dlog::ProveDLog;
 use curv::cryptographic_primitives::proofs::sigma_ec_ddh::ECDDHProof;
@@ -36,8 +36,9 @@ use curv::cryptographic_primitives::proofs::sigma_ec_ddh::ECDDHWitness;
 use curv::cryptographic_primitives::proofs::sigma_ec_ddh::NISigmaProof;
 use curv::cryptographic_primitives::proofs::ProofError;
 use curv::cryptographic_primitives::twoparty::coin_flip_optimal_rounds;
+use curv::elliptic::curves::curve_jubjub::FE;
+use curv::elliptic::curves::curve_jubjub::GE;
 use curv::elliptic::curves::traits::{ECPoint, ECScalar};
-use curv::{BigInt, FE, GE};
 use protocols::two_party::verify;
 use protocols::two_party::Signature;
 
@@ -183,11 +184,14 @@ impl EphKeyGenFirstMsg {
     pub fn create(vk: &GE, message: &BigInt) -> (EphKeyGenFirstMsg, EphEcKeyPair) {
         let base: GE = ECPoint::generator();
         let randomness: FE = ECScalar::new_random();
-        let ft = HSha256::create_hash(&vec![
-            &vk.bytes_compressed_to_big_int(),
-            message,
-            &randomness.to_big_int(),
-        ]);
+        let ft = Blake::create_hash(
+            &vec![
+                &vk.bytes_compressed_to_big_int(),
+                message,
+                &randomness.to_big_int(),
+            ],
+            b"Zcash_RedJubjubH",
+        );
         let r_i = ECScalar::from(&ft);
         let R_i = base * &r_i;
 
@@ -238,10 +242,10 @@ impl EphKeyGenSecondMsg {
         };
         match party_two_zk_pok_commitment
             == &HashCommitment::create_commitment_with_user_defined_randomness(
-                &HSha256::create_hash_from_ge(&[
-                    &party_two_d_log_proof.a1,
-                    &party_two_d_log_proof.a2,
-                ])
+                &Blake::create_hash_from_ge(
+                    &[&party_two_d_log_proof.a1, &party_two_d_log_proof.a2],
+                    b"Zcash_RedJubjubH",
+                )
                 .to_big_int(),
                 &party_two_zk_pok_blind_factor,
             ) {

@@ -20,9 +20,11 @@ pub mod party_one;
 pub mod party_two;
 pub mod test;
 
+use curv::arithmetic::big_gmp::BigInt;
 use curv::cryptographic_primitives::hashing::blake2b512::Blake;
+use curv::elliptic::curves::curve_jubjub::FE;
+use curv::elliptic::curves::curve_jubjub::GE;
 use curv::elliptic::curves::traits::{ECPoint, ECScalar};
-use curv::{BigInt, FE, GE};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EcKeyPair {

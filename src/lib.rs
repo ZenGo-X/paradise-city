@@ -16,11 +16,13 @@
 
 #[macro_use]
 extern crate serde_derive;
+extern crate blake2_rfc;
 extern crate serde;
 extern crate serde_json;
+extern crate sha3;
 extern crate subtle;
-
-extern crate curv;
+extern crate zeroize;
+pub mod curv;
 pub mod protocols;
 
 #[derive(Copy, PartialEq, Eq, Clone, Debug)]
@@ -29,4 +31,13 @@ pub enum Error {
     InvalidSS,
     InvalidCom,
     InvalidSig,
+}
+
+pub enum ErrorSS {
+    VerifyShareError,
+}
+
+#[derive(Copy, PartialEq, Eq, Clone, Debug)]
+pub enum ErrorKey {
+    InvalidPublicKey,
 }
