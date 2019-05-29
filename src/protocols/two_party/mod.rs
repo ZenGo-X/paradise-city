@@ -24,7 +24,7 @@ use curv::cryptographic_primitives::hashing::blake2b512::Blake;
 use curv::elliptic::curves::traits::{ECPoint, ECScalar};
 use curv::{BigInt, FE, GE};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EcKeyPair {
     pub ak: GE,
     ask: FE,
