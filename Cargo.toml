@@ -9,7 +9,6 @@ categories = ["cryptography"]
 crate-type = ["lib"]
 
 [dependencies]
-subtle = {version = "2", features = ["nightly"]}
 serde = "= 1.0.75"
 serde_derive = " = 1.0.75"
 serde_json = "= 1.0.26"
