@@ -19,7 +19,6 @@ extern crate serde_derive;
 extern crate blake2_rfc;
 extern crate serde;
 extern crate serde_json;
-extern crate sha3;
 extern crate subtle;
 extern crate zeroize;
 pub mod curv;
