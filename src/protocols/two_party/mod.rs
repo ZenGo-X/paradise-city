@@ -29,7 +29,7 @@ use curv::elliptic::curves::traits::{ECPoint, ECScalar};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EcKeyPair {
     pub ak: GE,
-    ask: FE,
+    pub ask: FE,
 }
 
 #[derive(Clone, Debug)]
