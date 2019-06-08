@@ -73,7 +73,8 @@ mod tests {
     #[test]
     fn test_2p_sign() {
         let (party1_keys, party2_keys, public_key) = two_party_keygen();
-        let message = BigInt::from(10);
+        let message_vec = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        let message = BigInt::from(&message_vec[..]);
         // round 1
         // party1
         let (party1_cf_first_message, party1_cf_seed, party1_cf_blinding) =

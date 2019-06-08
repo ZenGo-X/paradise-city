@@ -37,6 +37,7 @@ use curv::elliptic::curves::curve_jubjub::GE;
 use curv::elliptic::curves::traits::{ECPoint, ECScalar};
 use protocols::two_party::verify;
 use protocols::two_party::Signature;
+use curv::arithmetic::traits::Converter;
 
 const SECURITY_BITS: usize = 256;
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -304,14 +305,20 @@ impl LocalSignatureMsg {
         message: &BigInt,
         alpha: &FE,
     ) -> LocalSignatureMsg {
+     //   let vk_m = ((vk.bytes_compressed_to_big_int()).shl(256)) + message;
+        let mut R_vec = BigInt::to_vec(&R.bytes_compressed_to_big_int());
+        R_vec.reverse();
+        let R_bn = BigInt::from(&R_vec[..]);
         let hash_R_vk_m = Blake::create_hash(
             &vec![
-                &R.bytes_compressed_to_big_int(),
-                &vk.bytes_compressed_to_big_int(),
-                message,
+                &R_bn,
+                &message,
             ],
             b"Zcash_RedJubjubH",
         );
+        let mut hash_R_vk_m_vec = BigInt::to_vec(&hash_R_vk_m);
+        hash_R_vk_m_vec.reverse();
+        let hash_R_vk_m = BigInt::from(&hash_R_vk_m_vec[..]);
         let hash_fe: FE = ECScalar::from(&hash_R_vk_m);
         let s1 = eph_key.r_i + hash_fe * (key.ask + alpha);
         LocalSignatureMsg { s1 }

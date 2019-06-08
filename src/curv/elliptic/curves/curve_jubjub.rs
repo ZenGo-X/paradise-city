@@ -228,13 +228,13 @@ impl<'de> Deserialize<'de> for JubjubScalar {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_str(Secp256k1ScalarVisitor)
+        deserializer.deserialize_str(JubjubScalarVisitor)
     }
 }
 
-struct Secp256k1ScalarVisitor;
+struct JubjubScalarVisitor;
 
-impl<'de> Visitor<'de> for Secp256k1ScalarVisitor {
+impl<'de> Visitor<'de> for JubjubScalarVisitor {
     type Value = JubjubScalar;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -512,24 +512,34 @@ impl<'de> Visitor<'de> for RistrettoCurvPointVisitor {
     }
 }
 
-#[cfg(feature = "curvejubjub")]
 #[cfg(test)]
 mod tests {
     use super::JubjubPoint;
-    use arithmetic::traits::Modulo;
-    use elliptic::curves::traits::ECPoint;
-    use elliptic::curves::traits::ECScalar;
+    use curv::arithmetic::traits::Modulo;
+    use curv::elliptic::curves::traits::ECPoint;
+    use curv::elliptic::curves::traits::ECScalar;
     use serde_json;
-    use BigInt;
-    use {FE, GE};
+    use curv::elliptic::curves::curve_jubjub::{GE, FE};
+    use curv::arithmetic::big_gmp::BigInt;
+
+
+    #[test]
+    fn test_serdes_sk() {
+        let sk: FE = FE::new_random();
+        let s = serde_json::to_string(&sk).expect("Failed in serialization");
+        let des_sk: FE = serde_json::from_str(&s).expect("Failed in deserialization");
+        assert_eq!(des_sk, sk );
+    }
 
     #[test]
     fn test_serdes_pk() {
         let pk = GE::generator();
         let s = serde_json::to_string(&pk).expect("Failed in serialization");
         let des_pk: GE = serde_json::from_str(&s).expect("Failed in deserialization");
-        let eight = ECScalar::from(&BigInt::from(8));
-        assert_eq!(des_pk, pk * &eight);
+        let eight: FE  = ECScalar::from(&BigInt::from(8));
+        let eight_inv = eight.invert();
+        assert_eq!(des_pk.clone(), pk.clone() * &eight);
+        assert_eq!(des_pk.clone() * eight_inv, pk);
 
         let pk = GE::base_point2();
         let s = serde_json::to_string(&pk).expect("Failed in serialization");
