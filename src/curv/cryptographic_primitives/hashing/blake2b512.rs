@@ -16,26 +16,13 @@ pub struct Blake;
 
 impl Blake {
     pub fn create_hash(big_ints: &[&BigInt], persona: &[u8]) -> BigInt {
-
-        let mut digest2 = Blake2b::with_params(64, &[], &[], persona);
-
-            let mut vec = BigInt::to_vec(big_ints[big_ints.len()-1]);
-    //    let mut vec = BigInt::to_vec(big_ints[0]);
-
-    //        vec.reverse();
-            digest2.update(&vec);
-     //   println!("big_ints[big_ints.len()-1] {:?}", big_ints[big_ints.len()-1].clone().to_str_radix(16));
-        let ret2 = digest2.finalize();
-
         let mut digest = Blake2b::with_params(64, &[], &[], persona);
 
         for value in big_ints {
             let mut vec = BigInt::to_vec(value);
-     //       vec.reverse();
             digest.update(&vec);
         }
         let ret = digest.finalize();
-      //  println!("hash_paradise {:?}", ret.as_ref().clone());
         BigInt::from(ret.as_ref())
     }
 

@@ -22,9 +22,7 @@ impl Commitment<BigInt> for HashCommitment {
         message: &BigInt,
         blinding_factor: &BigInt,
     ) -> BigInt {
-
         Blake::create_hash(&vec![message, &blinding_factor], b"Zcash_RedJubjubH")
-
     }
 
     fn create_commitment(message: &BigInt) -> (BigInt, BigInt) {

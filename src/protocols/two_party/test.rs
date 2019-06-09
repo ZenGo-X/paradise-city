@@ -20,6 +20,7 @@
 mod tests {
     use curv::arithmetic::big_gmp::BigInt;
     use curv::elliptic::curves::curve_jubjub::GE;
+    use curv::elliptic::curves::traits::ECPoint;
     use protocols::two_party::compute_R;
     use protocols::two_party::compute_ak;
     use protocols::two_party::compute_vk;
@@ -73,8 +74,10 @@ mod tests {
     #[test]
     fn test_2p_sign() {
         let (party1_keys, party2_keys, public_key) = two_party_keygen();
-        let message_vec = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-        let message = BigInt::from(&message_vec[..]);
+        let message_vec = [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1,
+        ];
         // round 1
         // party1
         let (party1_cf_first_message, party1_cf_seed, party1_cf_blinding) =
@@ -96,7 +99,9 @@ mod tests {
         let party2_vk = compute_vk(&public_key, &coin_flip_res.party2_alpha);
 
         assert_eq!(party1_vk, party2_vk);
-
+        let mut vk_bytes = party1_vk.pk_to_key_slice();
+        vk_bytes.extend_from_slice(&message_vec[..]);
+        let message = BigInt::from(&vk_bytes[..]);
         // round 3
         // party1:
         let (party1_eph_first_message, party1_comm_witness, party1_eph_keys) =

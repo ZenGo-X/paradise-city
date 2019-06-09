@@ -21,11 +21,11 @@ pub mod party_two;
 pub mod test;
 
 use curv::arithmetic::big_gmp::BigInt;
+use curv::arithmetic::traits::Converter;
 use curv::cryptographic_primitives::hashing::blake2b512::Blake;
 use curv::elliptic::curves::curve_jubjub::FE;
 use curv::elliptic::curves::curve_jubjub::GE;
 use curv::elliptic::curves::traits::{ECPoint, ECScalar};
-use curv::arithmetic::traits::Converter;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EcKeyPair {
@@ -66,26 +66,15 @@ pub fn compute_R(local_share: &EphEcKeyPair, R_counter_party: &GE) -> GE {
 }
 
 pub fn verify(vk: GE, message: &BigInt, sig: &Signature) -> Result<(), Error> {
- //   println!("entering paradise hash");
-
-  //  let vk_m = ((vk.bytes_compressed_to_big_int()).shl(256)) + message;
-  //  println!("vk_m {:?}", vk_m.to_str_radix(16).clone());
     let mut R_vec = BigInt::to_vec(&sig.R.bytes_compressed_to_big_int());
     R_vec.reverse();
     let R_bn = BigInt::from(&R_vec[..]);
-    let c = Blake::create_hash(
-        &vec![
-            &R_bn,
-            message,
-        ],
-        b"Zcash_RedJubjubH",
-    );
+    let c = Blake::create_hash(&vec![&R_bn, message], b"Zcash_RedJubjubH");
     let mut c_vec = BigInt::to_vec(&c);
     c_vec.reverse();
     let c = BigInt::from(&c_vec[..]);
 
-    let c_fe : FE = ECScalar::from(&c);
-    println!("c paradise {:?}", c_fe.clone());
+    let c_fe: FE = ECScalar::from(&c);
     let R_plus_cvk = sig.R + vk * &c_fe;
     let G = GE::generator();
     let sG = G * &sig.s;

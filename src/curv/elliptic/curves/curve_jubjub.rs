@@ -515,20 +515,19 @@ impl<'de> Visitor<'de> for RistrettoCurvPointVisitor {
 #[cfg(test)]
 mod tests {
     use super::JubjubPoint;
+    use curv::arithmetic::big_gmp::BigInt;
     use curv::arithmetic::traits::Modulo;
+    use curv::elliptic::curves::curve_jubjub::{FE, GE};
     use curv::elliptic::curves::traits::ECPoint;
     use curv::elliptic::curves::traits::ECScalar;
     use serde_json;
-    use curv::elliptic::curves::curve_jubjub::{GE, FE};
-    use curv::arithmetic::big_gmp::BigInt;
-
 
     #[test]
     fn test_serdes_sk() {
         let sk: FE = FE::new_random();
         let s = serde_json::to_string(&sk).expect("Failed in serialization");
         let des_sk: FE = serde_json::from_str(&s).expect("Failed in deserialization");
-        assert_eq!(des_sk, sk );
+        assert_eq!(des_sk, sk);
     }
 
     #[test]
@@ -536,7 +535,7 @@ mod tests {
         let pk = GE::generator();
         let s = serde_json::to_string(&pk).expect("Failed in serialization");
         let des_pk: GE = serde_json::from_str(&s).expect("Failed in deserialization");
-        let eight: FE  = ECScalar::from(&BigInt::from(8));
+        let eight: FE = ECScalar::from(&BigInt::from(8));
         let eight_inv = eight.invert();
         assert_eq!(des_pk.clone(), pk.clone() * &eight);
         assert_eq!(des_pk.clone() * eight_inv, pk);

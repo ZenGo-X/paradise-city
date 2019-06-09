@@ -20,6 +20,7 @@ use super::party_two::EphKeyGenFirstMsg as Party2EphKeyGenFirstMsg;
 use super::party_two::LocalSignatureMsg as CounterLocalSig;
 use super::{EcKeyPair, EphEcKeyPair};
 use curv::arithmetic::big_gmp::BigInt;
+use curv::arithmetic::traits::Converter;
 use curv::arithmetic::traits::Samplable;
 use curv::cryptographic_primitives::commitments::hash_commitment::HashCommitment;
 use curv::cryptographic_primitives::commitments::traits::Commitment;
@@ -37,7 +38,6 @@ use curv::elliptic::curves::curve_jubjub::GE;
 use curv::elliptic::curves::traits::{ECPoint, ECScalar};
 use protocols::two_party::verify;
 use protocols::two_party::Signature;
-use curv::arithmetic::traits::Converter;
 
 const SECURITY_BITS: usize = 256;
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -305,17 +305,15 @@ impl LocalSignatureMsg {
         message: &BigInt,
         alpha: &FE,
     ) -> LocalSignatureMsg {
-     //   let vk_m = ((vk.bytes_compressed_to_big_int()).shl(256)) + message;
+        // check that message is 64 bytes and that first 32 bytes are vk:
+        let message_vec = BigInt::to_vec(&message);
+        assert_eq!(message_vec.len(), 64);
+        let vk_bytes = vk.pk_to_key_slice();
+        assert_eq!(&message_vec[0..32], &vk_bytes[..]);
         let mut R_vec = BigInt::to_vec(&R.bytes_compressed_to_big_int());
         R_vec.reverse();
         let R_bn = BigInt::from(&R_vec[..]);
-        let hash_R_vk_m = Blake::create_hash(
-            &vec![
-                &R_bn,
-                &message,
-            ],
-            b"Zcash_RedJubjubH",
-        );
+        let hash_R_vk_m = Blake::create_hash(&vec![&R_bn, &message], b"Zcash_RedJubjubH");
         let mut hash_R_vk_m_vec = BigInt::to_vec(&hash_R_vk_m);
         hash_R_vk_m_vec.reverse();
         let hash_R_vk_m = BigInt::from(&hash_R_vk_m_vec[..]);
