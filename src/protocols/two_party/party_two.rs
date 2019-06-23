@@ -79,6 +79,7 @@ pub struct LocalSignatureMsg {
 
 impl KeyGenFirstMsg {
     pub fn create() -> (KeyGenFirstMsg, EcKeyPair) {
+        println!("party 2: KeyGen 1st message");
         let base: GE = ECPoint::generator();
         let secret_share: FE = ECScalar::new_random();
         let public_share = base * &secret_share;
@@ -97,6 +98,7 @@ impl KeyGenFirstMsg {
     }
 
     pub fn create_with_fixed_secret_share(secret_share: FE) -> (KeyGenFirstMsg, EcKeyPair) {
+        println!("party 2: KeyGen 1st message");
         let base: GE = ECPoint::generator();
         let public_share = base * &secret_share;
         let d_log_proof = DLogProof::prove(&secret_share);
@@ -119,6 +121,7 @@ impl KeyGenSecondMsg {
         party_one_first_message: &Party1KeyGenFirstMessage,
         party_one_second_message: &Party1KeyGenSecondMessage,
     ) -> Result<KeyGenSecondMsg, ProofError> {
+        println!("party 2: KeyGen 2nd message");
         let party_one_pk_commitment = &party_one_first_message.pk_commitment;
         let party_one_zk_pok_commitment = &party_one_first_message.zk_pok_commitment;
         let party_one_zk_pok_blind_factor =
@@ -183,6 +186,7 @@ impl CoinFlipResult {
 
 impl EphKeyGenFirstMsg {
     pub fn create(vk: &GE, message: &BigInt) -> (EphKeyGenFirstMsg, EphEcKeyPair) {
+        println!("party 2: Ephemeral KeyGen 1st message");
         let base: GE = ECPoint::generator();
         let randomness: FE = ECScalar::new_random();
         let ft = Blake::create_hash(
@@ -223,6 +227,7 @@ impl EphKeyGenSecondMsg {
         party_one_first_message: &Party1EphKeyGenFirstMessage,
         party_one_second_message: &Party1EphKeyGenSecondMessage,
     ) -> Result<EphKeyGenSecondMsg, ProofError> {
+        println!("party 2: Ephemeral KeyGen 2nd message");
         let party_two_pk_commitment = &party_one_first_message.pk_commitment;
         let party_two_zk_pok_commitment = &party_one_first_message.zk_pok_commitment;
         let party_two_zk_pok_blind_factor =
@@ -273,6 +278,7 @@ impl LocalSignatureMsg {
         eph_key: EphEcKeyPair,
         message: &BigInt,
     ) -> LocalSignatureMsg {
+        println!("party 2: Compute local signature");
         // check that message is 64 bytes and that first 32 bytes are vk:
         let message_vec = BigInt::to_vec(&message);
         assert_eq!(message_vec.len(), 64);
@@ -297,6 +303,7 @@ impl LocalSignatureMsg {
         counter_sig: &CounterLocalSig,
         message: &BigInt,
     ) -> Signature {
+        println!("party 2: Compute signature");
         let sig = Signature {
             s: local_sig.s2 + counter_sig.s1,
             R,

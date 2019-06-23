@@ -96,6 +96,7 @@ pub struct LocalSignatureMsg {
 
 impl KeyGenFirstMsg {
     pub fn create_commitments() -> (KeyGenFirstMsg, CommWitness, EcKeyPair) {
+        println!("party 1: KeyGen 1st message");
         let base: GE = ECPoint::generator();
 
         let secret_share: FE = ECScalar::new_random();
@@ -142,6 +143,7 @@ impl KeyGenFirstMsg {
     pub fn create_commitments_with_fixed_secret_share(
         secret_share: FE,
     ) -> (KeyGenFirstMsg, CommWitness, EcKeyPair) {
+        println!("party 1: KeyGen 1st message");
         //in Lindell's protocol range proof works only for x1<q/3
         let sk_bigint = secret_share.to_big_int();
         let q_third = FE::q();
@@ -190,6 +192,7 @@ impl KeyGenSecondMsg {
         comm_witness: CommWitness,
         proof: &DLogProof,
     ) -> Result<KeyGenSecondMsg, ProofError> {
+        println!("party 1: KeyGen 2nd message");
         DLogProof::verify(proof)?;
         Ok(KeyGenSecondMsg { comm_witness })
     }
@@ -223,6 +226,7 @@ impl EphKeyGenFirstMsg {
         vk: &GE,
         message: &BigInt,
     ) -> (EphKeyGenFirstMsg, EphCommWitness, EphEcKeyPair) {
+        println!("party 1: Ephemeral KeyGen 1st message");
         let base: GE = ECPoint::generator();
 
         let randomness: FE = ECScalar::new_random();
@@ -285,6 +289,7 @@ impl EphKeyGenSecondMsg {
         comm_witness: EphCommWitness,
         party_one_first_message: &Party2EphKeyGenFirstMsg,
     ) -> Result<EphKeyGenSecondMsg, ProofError> {
+        println!("party 1: Ephemeral KeyGen 2nd message");
         let delta = ECDDHStatement {
             g1: GE::generator(),
             h1: party_one_first_message.public_share.clone(),
@@ -305,6 +310,7 @@ impl LocalSignatureMsg {
         message: &BigInt,
         alpha: &FE,
     ) -> LocalSignatureMsg {
+        println!("party 1: Compute local signature");
         // check that message is 64 bytes and that first 32 bytes are vk:
         let message_vec = BigInt::to_vec(&message);
         assert_eq!(message_vec.len(), 64);
@@ -329,6 +335,7 @@ impl LocalSignatureMsg {
         counter_sig: &CounterLocalSig,
         message: &BigInt,
     ) -> Signature {
+        println!("party 1: Compute signature");
         let sig = Signature {
             s: local_sig.s1 + counter_sig.s2,
             R,
